@@ -1,0 +1,120 @@
+# ==========================================
+# Operating System & IDEs
+# ==========================================
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+.idea/
+.vscode/
+*.suo
+*.sln
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Python (General, Packaging, Tools)
+# ==========================================
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller / Executables
+*.manifest
+*.spec
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Quality Control (Pytest, Coverage, MyPy, Tox)
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Jupyter Notebook & IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Logs & Celery
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+celerybeat-schedule
+celerybeat.pid
+
+# ==========================================
+# Django / DRF Specific
+# ==========================================
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# ==========================================
+# Flutter & Dart
+# ==========================================
+# Dart & Flutter cache
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Mobile specific build files
+android/app/debug/
+android/app/profile/
+android/app/release/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/DerivedData/
+*.apk
+*.aab
+*.ipa
+
+# Keys & Certificates
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
