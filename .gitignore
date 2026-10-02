@@ -1,0 +1,15 @@
+# Python / Django
+.venv/
+__pycache__/
+*.pyc
+*.sqlite3
+*.db
+.env
+
+# Flutter
+build/
+.dart_tool/
+
+# Editor / OS
+.idea/
+.DS_Store

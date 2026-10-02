@@ -7,6 +7,7 @@ class TaskCard extends StatelessWidget {
   final ValueChanged<bool?> onToggleStatus;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   const TaskCard({
     super.key,
@@ -14,6 +15,7 @@ class TaskCard extends StatelessWidget {
     required this.onToggleStatus,
     required this.onEdit,
     required this.onDelete,
+    required this.onTap,
   });
 
   Color _getPriorityColor(String priority) {
@@ -37,6 +39,7 @@ class TaskCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         leading: Checkbox(
           value: task.isCompleted,

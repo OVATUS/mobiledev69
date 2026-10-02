@@ -1,0 +1,7 @@
+{% extends "accounts/base.html" %}
+{% block title %}สมัครสำเร็จ{% endblock %}
+{% block heading %}สมัครสำเร็จ 🎉{% endblock %}
+{% block content %}
+  <p>สวัสดีคุณ {{ user.first_name|default:user.username }} บัญชีของคุณพร้อมใช้งานแล้ว</p>
+  <a class="btn" href="http://localhost:50000/">ไปที่แอป แล้วกด "เข้าสู่ระบบด้วย OIDC"</a>
+{% endblock %}

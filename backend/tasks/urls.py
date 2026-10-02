@@ -1,7 +1,11 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import TaskViewSet
+
+from .views import TaskViewSet, logout_view
 
 router = DefaultRouter()
 router.register(r'tasks', TaskViewSet, basename='task')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('logout/', logout_view, name='api-logout'),
+] + router.urls

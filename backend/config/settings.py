@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y-uk3s-+i5evyldijoue5ehzj8361c6a+$bu2l6rz=+drxf9h!'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-insecure-key-do-not-use-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'accounts',  # ต้องอยู่ก่อน oidc_provider เพื่อใช้หน้า Consent ของเราแทน
     'oidc_provider',
     'tasks',
 ]
@@ -107,9 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'th'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
@@ -122,12 +124,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # 3. ตั้งค่า CORS สำหรับ Flutter Web (พอร์ต 50000)
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ['http://localhost:50000']
 
 # 4. ตั้งค่า OIDC Provider
 SITE_URL = 'http://localhost:8000'
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/accounts/login/'  # หน้า login/register ของเราเอง
+OIDC_USERINFO = 'tasks.oidc.userinfo'  # ส่งชื่อผู้ใช้/อีเมลให้แอป
 
 # 5. REST Framework Authentication (รองรับ Bearer Token จาก OIDC)
 REST_FRAMEWORK = {

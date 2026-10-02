@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Daily Task Tracker{% endblock %}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "Sarabun", "Segoe UI", Tahoma, sans-serif; background: #eef2fb; color: #1f2937;
+    }
+    .card {
+      width: 100%; max-width: 400px; margin: 24px; padding: 32px;
+      background: #fff; border-radius: 16px; box-shadow: 0 8px 24px rgba(37, 99, 235, .10);
+    }
+    .brand { text-align: center; margin-bottom: 24px; }
+    .brand .icon { font-size: 44px; }
+    h1 { font-size: 22px; margin: 8px 0 4px; }
+    .sub { color: #6b7280; font-size: 14px; margin: 0; }
+    label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
+    input[type=text], input[type=password], input[type=email] {
+      width: 100%; padding: 11px 12px; font-size: 15px;
+      border: 1px solid #d1d5db; border-radius: 10px;
+    }
+    input:focus { outline: 2px solid #2563eb; outline-offset: 1px; border-color: transparent; }
+    .help { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .error { font-size: 13px; color: #b91c1c; margin-top: 4px; }
+    .alert { background: #fef2f2; color: #b91c1c; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+    .btn {
+      display: block; width: 100%; margin-top: 22px; padding: 12px; font-size: 16px; font-weight: 600;
+      border: 0; border-radius: 10px; cursor: pointer; background: #2563eb; color: #fff; text-align: center;
+      text-decoration: none;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn.secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; margin-top: 10px; }
+    .btn.secondary:hover { background: #f3f4f6; }
+    .switch { text-align: center; font-size: 14px; margin-top: 20px; color: #6b7280; }
+    .switch a { color: #2563eb; font-weight: 600; }
+    ul.scopes { padding: 0; list-style: none; }
+    ul.scopes li { padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 8px; }
+    ul.scopes small { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <div class="icon">✅</div>
+      <h1>{% block heading %}{% endblock %}</h1>
+      <p class="sub">{% block subheading %}Daily Task Tracker{% endblock %}</p>
+    </div>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

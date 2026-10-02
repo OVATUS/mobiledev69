@@ -60,15 +60,15 @@ class LoginView extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: authVM.isLoading ? null : () => authVM.login(),
-                  icon: authVM.isLoading
+                  onPressed: authVM.isBusy ? null : () => authVM.login(),
+                  icon: authVM.isBusy
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
                       : const Icon(Icons.lock_open),
-                  label: Text(authVM.isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบด้วย OIDC'),
+                  label: Text(authVM.isBusy ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบด้วย OIDC'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,

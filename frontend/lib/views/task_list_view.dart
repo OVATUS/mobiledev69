@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../models/task_model.dart';
+
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/task_viewmodel.dart';
 import '../viewmodels/theme_viewmodel.dart';
+import 'widgets/task_actions.dart';
 import 'widgets/task_card.dart';
-import 'widgets/task_form_dialog.dart';
 
 class TaskListView extends StatefulWidget {
   const TaskListView({super.key});
@@ -23,63 +24,74 @@ class _TaskListViewState extends State<TaskListView> {
     });
   }
 
-  void _openTaskForm([TaskModel? task]) {
-    final taskVM = context.read<TaskViewModel>();
-    showDialog(
-      context: context,
-      builder: (_) => TaskFormDialog(
-        initialTask: task,
-        onSave: (savedTask) {
-          if (task == null) {
-            taskVM.addTask(savedTask);
-          } else {
-            taskVM.updateTask(savedTask);
-          }
-        },
-      ),
-    );
-  }
-
-  void _confirmDelete(int taskId) {
-    final taskVM = context.read<TaskViewModel>();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('ยืนยันการลบ'),
-        content: const Text('คุณแน่ใจหรือไม่ว่าต้องการลบงานนี้?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('ยกเลิก')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              Navigator.pop(ctx);
-              taskVM.deleteTask(taskId);
-            },
-            child: const Text('ลบ'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSummaryCard(String label, int count, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
-            Text(
-              '$count',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
-            ),
+            Text('$count',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+            Text(label,
+                style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTaskArea(TaskViewModel taskVM) {
+    if (taskVM.isLoading && !taskVM.hasLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (taskVM.loadError != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off, size: 56, color: Colors.redAccent),
+              const SizedBox(height: 12),
+              Text(taskVM.loadError!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: taskVM.isLoading ? null : () => taskVM.loadTasks(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('ลองใหม่'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final tasks = taskVM.filteredTasks;
+    if (tasks.isEmpty) {
+      return Center(
+        child: Text(taskVM.totalCount == 0
+            ? 'ยังไม่มีงาน กด "เพิ่มงาน" เพื่อเริ่มต้น'
+            : 'ไม่พบงานที่ตรงกับตัวกรอง'),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: taskVM.loadTasks,
+      child: ListView.builder(
+        itemCount: tasks.length,
+        itemBuilder: (context, index) {
+          final task = tasks[index];
+          return TaskCard(
+            task: task,
+            onTap: () => context.push('/tasks/${task.id}'),
+            onToggleStatus: (_) => toggleTaskStatus(context, task),
+            onEdit: () => openTaskForm(context, task: task),
+            onDelete: () => confirmAndDeleteTask(context, task.id!),
+          );
+        },
       ),
     );
   }
@@ -92,17 +104,36 @@ class _TaskListViewState extends State<TaskListView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daily Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Daily Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
+            if (authVM.user != null)
+              Text('สวัสดี ${authVM.user!.name}',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.normal)),
+          ],
+        ),
         actions: [
+          PopupMenuButton<TaskSort>(
+            tooltip: 'เรียงลำดับ',
+            icon: const Icon(Icons.sort),
+            initialValue: taskVM.sort,
+            onSelected: taskVM.setSort,
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: TaskSort.newest, child: Text('ใหม่ล่าสุด')),
+              PopupMenuItem(value: TaskSort.dueDate, child: Text('กำหนดส่งใกล้สุด')),
+              PopupMenuItem(value: TaskSort.priority, child: Text('ความสำคัญสูงสุด')),
+            ],
+          ),
           IconButton(
             tooltip: 'สลับธีม',
             icon: Icon(themeVM.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => themeVM.toggleTheme(),
+            onPressed: themeVM.toggleTheme,
           ),
           IconButton(
             tooltip: 'ออกจากระบบ',
             icon: const Icon(Icons.logout),
-            onPressed: () => authVM.logout(),
+            onPressed: authVM.isBusy ? null : authVM.logout,
           ),
         ],
       ),
@@ -111,7 +142,6 @@ class _TaskListViewState extends State<TaskListView> {
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              // Dashboard Metrics
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                 child: Row(
@@ -124,8 +154,6 @@ class _TaskListViewState extends State<TaskListView> {
                   ],
                 ),
               ),
-
-              // Search Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: TextField(
@@ -135,11 +163,10 @@ class _TaskListViewState extends State<TaskListView> {
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  onChanged: (val) => taskVM.setSearchQuery(val),
+                  onChanged: taskVM.setSearchQuery,
                 ),
               ),
-
-              // Filter Chips
+              // กรองหมวดหมู่
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -157,47 +184,27 @@ class _TaskListViewState extends State<TaskListView> {
                   ],
                 ),
               ),
-              const Divider(height: 16),
-
-              // Task List Area
-              Expanded(
-                child: taskVM.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : taskVM.errorMessage != null
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(taskVM.errorMessage!, style: const TextStyle(color: Colors.red)),
-                                const SizedBox(height: 8),
-                                ElevatedButton(
-                                  onPressed: () => taskVM.loadTasks(),
-                                  child: const Text('ลองใหม่'),
-                                ),
-                              ],
-                            ),
-                          )
-                        : taskVM.filteredTasks.isEmpty
-                            ? const Center(child: Text('ไม่มีรายการงาน'))
-                            : ListView.builder(
-                                itemCount: taskVM.filteredTasks.length,
-                                itemBuilder: (context, index) {
-                                  final task = taskVM.filteredTasks[index];
-                                  return TaskCard(
-                                    task: task,
-                                    onToggleStatus: (_) => taskVM.toggleTaskStatus(task),
-                                    onEdit: () => _openTaskForm(task),
-                                    onDelete: () => _confirmDelete(task.id!),
-                                  );
-                                },
-                              ),
+              // กรองสถานะ
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'ALL', label: Text('ทั้งหมด')),
+                    ButtonSegment(value: 'PENDING', label: Text('ยังไม่เสร็จ')),
+                    ButtonSegment(value: 'COMPLETED', label: Text('เสร็จแล้ว')),
+                  ],
+                  selected: {taskVM.statusFilter},
+                  onSelectionChanged: (s) => taskVM.setStatusFilter(s.first),
+                ),
               ),
+              const Divider(height: 16),
+              Expanded(child: _buildTaskArea(taskVM)),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openTaskForm(),
+        onPressed: () => openTaskForm(context),
         icon: const Icon(Icons.add),
         label: const Text('เพิ่มงาน'),
       ),

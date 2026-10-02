@@ -1,3 +1,4 @@
+import '../core/error_mapper.dart';
 import '../core/result.dart';
 import '../models/task_model.dart';
 import '../services/task_api_service.dart';
@@ -9,28 +10,25 @@ class TaskRepository {
 
   Future<Result<List<TaskModel>>> getTasks() async {
     try {
-      final tasks = await _apiService.getTasks();
-      return Success(tasks);
+      return Success(await _apiService.getTasks());
     } catch (e) {
-      return Failure('Failed to fetch tasks: ${e.toString()}');
+      return Failure(mapErrorToMessage(e));
     }
   }
 
   Future<Result<TaskModel>> createTask(TaskModel task) async {
     try {
-      final newTask = await _apiService.createTask(task);
-      return Success(newTask);
+      return Success(await _apiService.createTask(task));
     } catch (e) {
-      return Failure('Failed to create task: ${e.toString()}');
+      return Failure(mapErrorToMessage(e));
     }
   }
 
   Future<Result<TaskModel>> updateTask(TaskModel task) async {
     try {
-      final updatedTask = await _apiService.updateTask(task);
-      return Success(updatedTask);
+      return Success(await _apiService.updateTask(task));
     } catch (e) {
-      return Failure('Failed to update task: ${e.toString()}');
+      return Failure(mapErrorToMessage(e));
     }
   }
 
@@ -39,7 +37,7 @@ class TaskRepository {
       await _apiService.deleteTask(taskId);
       return const Success(null);
     } catch (e) {
-      return Failure('Failed to delete task: ${e.toString()}');
+      return Failure(mapErrorToMessage(e));
     }
   }
 }

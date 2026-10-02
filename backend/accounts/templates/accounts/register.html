@@ -1,0 +1,20 @@
+{% extends "accounts/base.html" %}
+{% block title %}สมัครสมาชิก{% endblock %}
+{% block heading %}สมัครสมาชิก{% endblock %}
+{% block content %}
+  {% for error in form.non_field_errors %}<p class="alert">{{ error }}</p>{% endfor %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+      {% for error in field.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    {% endfor %}
+    <button type="submit" class="btn">สมัครสมาชิก</button>
+  </form>
+  <p class="switch">มีบัญชีอยู่แล้ว?
+    <a href="{% url 'login' %}?next={{ next|urlencode }}">เข้าสู่ระบบ</a>
+  </p>
+{% endblock %}

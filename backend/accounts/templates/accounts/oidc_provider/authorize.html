@@ -1,0 +1,22 @@
+{% extends "accounts/base.html" %}
+{% block title %}ขออนุญาตเข้าถึงข้อมูล{% endblock %}
+{% block heading %}ขออนุญาตเข้าถึงข้อมูล{% endblock %}
+{% block subheading %}เข้าสู่ระบบในชื่อ {{ request.user.username }}{% endblock %}
+{% block content %}
+  <p><strong>{{ client.name }}</strong> ต้องการเข้าถึงข้อมูลต่อไปนี้ของคุณ</p>
+  <form method="post" action="{% url 'oidc_provider:authorize' %}">
+    {% csrf_token %}
+    {{ hidden_inputs }}
+    <ul class="scopes">
+      {% for scope in scopes %}
+        <li>
+          {% if scope.scope == 'email' %}📧 <strong>อีเมล</strong><br><small>ดูอีเมลของคุณ</small>
+          {% elif scope.scope == 'profile' %}👤 <strong>ข้อมูลโปรไฟล์</strong><br><small>ดูชื่อและชื่อผู้ใช้ของคุณ</small>
+          {% else %}<strong>{{ scope.name }}</strong><br><small>{{ scope.description }}</small>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <button name="allow" type="submit" value="Authorize" class="btn">อนุญาต</button>
+    <button type="submit" class="btn secondary">ไม่อนุญาต</button>
+  </form>
+{% endblock %}
